@@ -60,7 +60,7 @@ class BjkwSpider(scrapy.Spider):
                 pageNum = 1
                 while pageNum < all_page_num+1:
                     # for pageNum in range(1, 5):
-                    driverTmp = webdriver.Firefox()
+                    driverTmp = webdriver.PhantomJS()
                     url = response.url
                     if pageNum != 1:
                         url = response.url + '?uid=' + uid[0] + "&pageNum=" + str(pageNum)
