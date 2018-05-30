@@ -25,12 +25,12 @@ class BjkwSpider(scrapy.Spider):
     base_url = 'http://www.bjkw.gov.cn'
     download_url_prefix = 'http://jxw.beijing.gov.cn'
     start_urls = [
-    #'http://www.bjkw.gov.cn/col/col19/index.html',
-                   'http://www.bjkw.gov.cn/col/col363/index.html',
-    #              'http://www.bjkw.gov.cn/col/col362/index.html',
-    #              'http://www.bjkw.gov.cn/col/col982/index.html',
-    #               'http://www.bjkw.gov.cn/col/col365/index.html',
-    #              'http://www.bjkw.gov.cn/col/col366/index.html'
+    'http://www.bjkw.gov.cn/col/col19/index.html',
+                  'http://www.bjkw.gov.cn/col/col363/index.html',
+                  'http://www.bjkw.gov.cn/col/col362/index.html',
+                  'http://www.bjkw.gov.cn/col/col982/index.html',
+                  'http://www.bjkw.gov.cn/col/col365/index.html',
+                  'http://www.bjkw.gov.cn/col/col366/index.html'
                   ]
     allnum = 0
     allindexnum = 0
@@ -138,7 +138,7 @@ class BjkwSpider(scrapy.Spider):
             dr = re.compile(r'<[^>]+>|end-->|begin-->', re.S)
             content = dr.sub('', response.css('.bt_content').extract_first())
             #print("内容：", content)
-            item['content'] = content.strip()
+            item['content'] = content.strip().dd.replace(u'\xa0', '').replace(u'\u3000', '').replace(u'\r\n', '').replace(u'\t','')
 
            # print("___________________________________________________________")
             #print("附件：")
