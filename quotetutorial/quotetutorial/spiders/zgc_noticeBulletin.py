@@ -43,7 +43,7 @@ class JobboleSpider(scrapy.Spider):
             yield Request(url=parse.urljoin(response.url, next_url), callback=self.parse, dont_filter=True)
 
     def parse_detail_contents(self, response):
-        item = ArticlespiderItem()
+        item = ScrapyItem()
         #print("****", response.url)
         item['url'] = response.url
         cate_match = re.match('^http://(.*)/(.*?)/(.*?)/index.htm', response.url)
@@ -82,6 +82,7 @@ class JobboleSpider(scrapy.Spider):
 
         item['attchment'] = ','.join(temp_attch_arra)
         item['attchment_path'] = ','.join(temp_attch_path_arra)
+        item['view_count'] = '0'
         yield item
 
 
