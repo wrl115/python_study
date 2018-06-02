@@ -100,7 +100,7 @@ class NdrcSpider(scrapy.Spider):
             for attc in attchment:
                 file_name = dr.sub('', attc[1]).replace(u'\u3000', '').replace(u'\r\n', '').replace(u'\t', '').strip()
                 file_href = attc[0]
-                print('&&&&&&&&&', file_href, file_name)
+                # print('&&&&&&&&&', file_href, file_name)
                 save_path = ''
                 attach_path_arra.append(file_href)
                 attach_arra.append(file_name)
