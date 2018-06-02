@@ -14,7 +14,10 @@ class NdrcSpider(scrapy.Spider):
     index = 27
     name = 'ndrc'
     allowed_domains = ['www.ndrc.gov.cn']
-    start_urls = ['http://www.ndrc.gov.cn/zwfwzx/tztg/index.html']
+    start_urls = [
+                  #'http://www.ndrc.gov.cn/zwfwzx/tztg/index.html',
+                  #'http://www.ndrc.gov.cn/zcfb/zcfbtz/index.html',
+                  'http://www.ndrc.gov.cn/zcfb/zcfbgg/index.html']
     category_index = {'tztg': '1', 'zcfbtz': '2', 'zcfbgg': '3'}
     category_desc = {'tztg': '通知公告', 'zcfbtz': '政策通知', 'zcfbgg': '政策公告'}
     md5 = hashlib.md5()
