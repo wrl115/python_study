@@ -66,6 +66,7 @@ class GovSpider(scrapy.Spider):
                                                'category': response.meta['cate'],
                                                'title': title, 'date': date},
                                          callback=self.parse_content)
+                    time.sleep(random.randint(1, 6))
 
                 # 分析首页页面信息
                 if page_desc.group() and page_desc.group(2) == '0':
@@ -78,7 +79,7 @@ class GovSpider(scrapy.Spider):
                             url = page_desc.group(1) + '/' + str(i) + '.htm'
                             yield scrapy.Request(url, meta={'cate_index': response.meta['cate_index'],
                                                             'cate': response.meta['cate']}, callback=self.parse)
-                            time.sleep(random.randint(1, 3))
+                            time.sleep(random.randint(1, 6))
                 else:
                     pass
 
