@@ -111,7 +111,7 @@ class GovSpider(scrapy.Spider):
             item['view_count'] = '0'
             item['attchment_path'] = ''
             item['attchment'] = ''
-            print(item)
+            yield item
 
 
 
