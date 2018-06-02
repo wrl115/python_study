@@ -81,7 +81,7 @@ class GovSpider(scrapy.Spider):
                             url = page_desc.group(1) + '/' + str(i) + '.htm'
                             yield scrapy.Request(url, meta={'cate_index': response.meta['cate_index'],
                                                             'cate': response.meta['cate']}, callback=self.parse)
-                            time.sleep(random.randint(1, 3))
+                            time.sleep(random.randint(1, 6))
                 else:
                     pass
 
@@ -101,8 +101,9 @@ class GovSpider(scrapy.Spider):
             source_desc = response.css(".pages-date>span::text").extract_first()
             if source_desc:
                 source = re.findall('来源：(.*)', source_desc)
-                print('来源：', source[0].strip())
-                item['source'] = source[0].strip()
+                if source:
+                    print('来源：', source[0].strip())
+                    item['source'] = source[0].strip()
             dr = re.compile(r'<[^>]+>', re.S)
             dd = ''
             if response.css('.pages_content'):
