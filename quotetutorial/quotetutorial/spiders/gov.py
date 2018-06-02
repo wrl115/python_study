@@ -13,7 +13,7 @@ class GovSpider(scrapy.Spider):
     index = 26
     name = 'gov'
     allowed_domains = ['www.gov.cn', 'sousuo.gov.cn']
-    start_urls = ['http://www.gov.cn/guowuyuan/xinwen.htm',
+    start_urls = [  'http://www.gov.cn/guowuyuan/xinwen.htm',
                   # 'http://www.gov.cn/zhengce/zuixin.htm',
                   # 'http://www.gov.cn/zhengce/jiedu/bumen.htm',
                   # 'http://www.gov.cn/zhengce/jiedu/zhuanjia.htm',
@@ -74,7 +74,7 @@ class GovSpider(scrapy.Spider):
                     if page_num:
                         print('总页数：', page_num[0])
                         page_all_num = int(page_num[0])
-                        for i in range(1, 2):
+                        for i in range(1, page_all_num):
                             url = page_desc.group(1) + '/' + str(i) + '.htm'
                             yield scrapy.Request(url, meta={'cate_index': response.meta['cate_index'],
                                                             'cate': response.meta['cate']}, callback=self.parse)
