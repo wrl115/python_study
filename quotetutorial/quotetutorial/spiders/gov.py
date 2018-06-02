@@ -13,12 +13,13 @@ class GovSpider(scrapy.Spider):
     index = 26
     name = 'gov'
     allowed_domains = ['www.gov.cn', 'sousuo.gov.cn']
-    start_urls = [  'http://www.gov.cn/guowuyuan/xinwen.htm',
-                  # 'http://www.gov.cn/zhengce/zuixin.htm',
-                  # 'http://www.gov.cn/zhengce/jiedu/bumen.htm',
-                  # 'http://www.gov.cn/zhengce/jiedu/zhuanjia.htm',
-                  # 'http://www.gov.cn/zhengce/jiedu/meiti.htm'
-                  ]
+    start_urls = [
+        'http://www.gov.cn/guowuyuan/xinwen.htm',
+        'http://www.gov.cn/zhengce/zuixin.htm',
+        'http://www.gov.cn/zhengce/jiedu/bumen.htm',
+        'http://www.gov.cn/zhengce/jiedu/zhuanjia.htm',
+        'http://www.gov.cn/zhengce/jiedu/meiti.htm'
+    ]
     category_index = {'guowuyuan': '1',
                       'zhengce_zuixin': '2',
                       'zhengce_jiedu_bumen': '3',
@@ -40,7 +41,8 @@ class GovSpider(scrapy.Spider):
                 first_page = response.css('.shortId .zl_more::attr("href")').extract_first()
                 if first_page:
                     cate_index = self.start_urls.index(response.url) + 1
-                    cate = self.category_desc_arra[cate_index]
+
+                    cate = self.category_desc_arra[cate_index-1]
                     yield scrapy.Request(first_page,
                                          meta={'cate_index': str(self.index) + '-' + str(cate_index), 'cate': cate},
                                          callback=self.parse)
@@ -66,7 +68,7 @@ class GovSpider(scrapy.Spider):
                                                'category': response.meta['cate'],
                                                'title': title, 'date': date},
                                          callback=self.parse_content)
-                    time.sleep(random.randint(1, 6))
+
 
                 # 分析首页页面信息
                 if page_desc.group() and page_desc.group(2) == '0':
@@ -75,14 +77,13 @@ class GovSpider(scrapy.Spider):
                     if page_num:
                         print('总页数：', page_num[0])
                         page_all_num = int(page_num[0])
-                        for i in range(1, page_all_num):
+                        for i in range(1, 2):
                             url = page_desc.group(1) + '/' + str(i) + '.htm'
                             yield scrapy.Request(url, meta={'cate_index': response.meta['cate_index'],
                                                             'cate': response.meta['cate']}, callback=self.parse)
-                            time.sleep(random.randint(1, 6))
+                            time.sleep(random.randint(1, 3))
                 else:
                     pass
-
 
     def parse_content(self, response):
         # print(response.url, '#', response.meta['id_prefix'], '##', response.meta['category'], '##', response.meta['title'], "##",
@@ -100,7 +101,7 @@ class GovSpider(scrapy.Spider):
             source_desc = response.css(".pages-date>span::text").extract_first()
             if source_desc:
                 source = re.findall('来源：(.*)', source_desc)
-                print('来源：',source[0].strip())
+                print('来源：', source[0].strip())
                 item['source'] = source[0].strip()
             dr = re.compile(r'<[^>]+>', re.S)
             dd = ''
@@ -112,9 +113,5 @@ class GovSpider(scrapy.Spider):
             item['view_count'] = '0'
             item['attchment_path'] = ''
             item['attchment'] = ''
+            # print(item)
             yield item
-
-
-
-
-
