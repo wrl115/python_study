@@ -77,7 +77,7 @@ class GovSpider(scrapy.Spider):
                     if page_num:
                         print('总页数：', page_num[0])
                         page_all_num = int(page_num[0])
-                        for i in range(1, 2):
+                        for i in range(1, page_all_num):
                             url = page_desc.group(1) + '/' + str(i) + '.htm'
                             yield scrapy.Request(url, meta={'cate_index': response.meta['cate_index'],
                                                             'cate': response.meta['cate']}, callback=self.parse)
