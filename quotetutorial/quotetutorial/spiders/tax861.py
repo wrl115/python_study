@@ -99,7 +99,8 @@ class Tax861Spider(scrapy.Spider):
                 self.download_file(attch_url, save_path)
             item['attchment_path'] = ','.join(attach_path_arra)
             item['attchment'] = ','.join(attach_arra)
-            print(item)
+            # print(item)
+            yield item
 
     def download_file(self, url, local_path):
         if os.path.exists(local_path):
