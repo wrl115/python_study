@@ -53,6 +53,7 @@ class BjsatSpider(scrapy.Spider):
                 yield scrapy.Request(href, meta={'id_prefix': id_prefix,
                                                  'category': cate,
                                                  'title': title, 'date': date}, callback=self.parse_content)
+                time.sleep(random.randint(1, 20))
 
     def parse_content(self, response):
         print("#########", response.url)
