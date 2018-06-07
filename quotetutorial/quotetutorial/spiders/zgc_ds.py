@@ -56,6 +56,7 @@ class ZgcDsSpider(scrapy.Spider):
                     url = response.url[0:response.url.rfind("=") + 1] + str(page)
                     yield scrapy.Request(url, meta={'id_prefix': id_prefix, 'category': cate},
                                          callback=self.parse)
+                    time.sleep(3)
             else:
                 id_prefix = response.meta['id_prefix']
                 cate = response.meta['category']
@@ -70,6 +71,7 @@ class ZgcDsSpider(scrapy.Spider):
                                                                                              'title': title,
                                                                                              'date': date},
                                      callback=self.parse_content)
+                time.sleep(random.randint(1, 6))
 
     def parse_content(self, response):
         print("############", response.url)
@@ -111,7 +113,7 @@ class ZgcDsSpider(scrapy.Spider):
                 self.download_file(attch_url, save_path)
             item['attchment_path'] = ','.join(attach_path_arra)
             item['attchment'] = ','.join(attach_arra)
-            #print(item)
+            # print(item)
             yield item
 
     def download_file(self, url, local_path):
