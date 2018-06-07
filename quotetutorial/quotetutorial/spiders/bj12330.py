@@ -33,8 +33,8 @@ class Bj12330Spider(scrapy.Spider):
                 page_num_selector = response.css('div.xw-more input[type="hidden"]::attr("totalpage")')
                 if page_num_selector:
                     pages = page_num_selector.extract_first()
-                    for page in range(2, int(pages)+1):
-                    # for page in range(2, 3):
+                    for page in range(2, int(pages) + 1):
+                        # for page in range(2, 3):
                         url = response.url[0:response.url.rfind("/") + 1] + "459491cb-" + str(page) + '.html'
                         yield scrapy.Request(url, meta={'id_prefix': id_prefix, 'category': cate}, callback=self.parse)
 
@@ -54,6 +54,7 @@ class Bj12330Spider(scrapy.Spider):
                 yield scrapy.Request(href, meta={'id_prefix': id_prefix,
                                                  'category': cate,
                                                  'title': title, 'date': date}, callback=self.parse_content)
+                time.sleep(random.randint(1, 6))
 
     def parse_content(self, response):
         print("############", response.url)
