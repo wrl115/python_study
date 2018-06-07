@@ -83,8 +83,8 @@ class Tax861Spider(scrapy.Spider):
             item['url'] = response.url
             attach_path_arra = []
             attach_arra = []
-            atta_arra = response.css('a[href*=".xls"]') + response.css('s[href*=".doc"]') + response.css(
-                's[href*=".pdf"]')
+            atta_arra = response.css('a[href*=".xls"]') + response.css('a[href*=".doc"]') + response.css(
+                'a[href*=".pdf"]')
             for attch in atta_arra:
                 save_path = ''
                 attch_url = response.url[0:response.url.rfind('/') + 1] + attch.css('::attr("href")').extract_first()
