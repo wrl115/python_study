@@ -14,10 +14,32 @@ class PtsnSpider(scrapy.Spider):
     name = 'ptsn'
     allowed_domains = ['www.ptsn.net.cn']
     start_urls = [
-        'http://www.ptsn.net.cn/article_new/list_article.php?categories_id=84120dc6-1f8f-9522-9d4a-44b1bedcc0ab&page_currentPage=1']
-    category_index = {'84120dc6-1f8f-9522-9d4a-44b1bedcc0ab': '1'}
-    category_desc = {'84120dc6-1f8f-9522-9d4a-44b1bedcc0ab': '标准动态'}
-    url_descs = ['标准动态']
+        # 'http://www.ptsn.net.cn/article_new/list_article.php?categories_id=84120dc6-1f8f-9522-9d4a-44b1bedcc0ab&page_currentPage=1',
+        'http://www.ptsn.net.cn/article_new/list_article.php?categories_id=8f5a5e4d-2d74-d647-235b-44b1be7c0bb4&page_currentPage=1',
+        'http://www.ptsn.net.cn/article_new/list_article.php?categories_id=46eec597-e1da-8b53-5ca1-44b1be4f7e36&page_currentPage=1',
+        'http://www.ptsn.net.cn/article_new/list_article.php?categories_id=e2a2aedd-b3f5-9172-a19e-44b1be617ce6&page_currentPage=1',
+        'http://www.ptsn.net.cn/article_new/list_article.php?categories_id=7116d4bc-8017-598d-73ac-44b1be903d12&page_currentPage=1'
+    ]
+    category_index = {
+                      # '84120dc6-1f8f-9522-9d4a-44b1bedcc0ab': '1',
+                      '8f5a5e4d-2d74-d647-235b-44b1be7c0bb4': '2',
+                      '46eec597-e1da-8b53-5ca1-44b1be4f7e36': '3',
+                      'e2a2aedd-b3f5-9172-a19e-44b1be617ce6': '4',
+                      '7116d4bc-8017-598d-73ac-44b1be903d12': '5'
+                      }
+    category_desc = {
+                     # '84120dc6-1f8f-9522-9d4a-44b1bedcc0ab': '标准动态',
+                     '8f5a5e4d-2d74-d647-235b-44b1be7c0bb4': '中国通信行业法规',
+                     '46eec597-e1da-8b53-5ca1-44b1be4f7e36': '中国国家法律法规',
+                     'e2a2aedd-b3f5-9172-a19e-44b1be617ce6': '国际政策法规',
+                     '7116d4bc-8017-598d-73ac-44b1be903d12': '技术热点'
+                     }
+    url_descs = [
+                 # '标准动态',
+                 '中国通信行业法规',
+                 '中国国家法律法规',
+                 '国际政策法规',
+                 '技术热点']
     base_url = "http://www.ptsn.net.cn"
     md5 = hashlib.md5()
 
@@ -66,9 +88,12 @@ class PtsnSpider(scrapy.Spider):
             item['title'] = response.meta['title']
             item['published_date'] = response.meta['date']
             item['source'] = ''
-            source = response.xpath('/html/body/table[5]/tr/td')[-3].css('::text').extract_first()
-            if source:
-                item['source'] = source
+            try:
+                source = response.xpath('/html/body/table[5]/tr/td')[-3].css('::text').extract_first()
+                if source:
+                    item['source'] = source
+            except:
+                print('get source exception!!!', response.url)
             item['view_count'] = '0'
             item['url'] = response.url
             # print(response.css('body > table:nth-child(11)').extract_first())
@@ -94,8 +119,7 @@ class PtsnSpider(scrapy.Spider):
                     save_path = save_path + attch_name + attch_url[attch_url.rfind('.'):]
                 else:
                     save_path = save_path + attch_name
-                # print('%%%%', save_path)
-                self.download_file(attch_url, save_path)
+                # self.download_file(attch_url, save_path)
             item['attchment_path'] = ','.join(attach_path_arra)
             item['attchment'] = ','.join(attach_arra)
             # print(item)
