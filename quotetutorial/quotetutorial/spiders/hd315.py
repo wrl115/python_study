@@ -35,7 +35,7 @@ class Hd315Spider(scrapy.Spider):
                     for page in range(1, int(fenye_num[0])):
                         # for page in range(2, 3):
                         url = response.url[0:response.url.rfind("/") + 1] + "index_" + str(page) + '.html'
-                        yield scrapy.Request(url, meta={'id_prefix': id_prefix, 'category': cate}, callback=self.parse_content)
+                        yield scrapy.Request(url, meta={'id_prefix': id_prefix, 'category': cate}, callback=self.parse)
             else:
                 id_prefix = response.meta['id_prefix']
                 cate = response.meta['category']
@@ -47,11 +47,7 @@ class Hd315Spider(scrapy.Spider):
                 date = info.css('::text').extract()[2].strip()
                 title = info.css('::text').extract()[1].strip()
                 href = response.url[0:response.url.rfind('/') + 1] + info.css('a::attr("href")').extract_first()
-                print(
-                    # 'data:', date,
-                    'title:', title,
-                    # 'href:', href
-                )
+
                 yield scrapy.Request(href, meta={'id_prefix': id_prefix,
                                                  'category': cate,
                                                  'title': title, 'date': date}, callback=self.parse_content)
