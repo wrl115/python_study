@@ -13,10 +13,23 @@ class BjipoSpider(scrapy.Spider):
     index = 36
     name = 'bjipo'
     allowed_domains = ['daibanchu.bjipo.gov.cn']
-    start_urls = ['http://daibanchu.bjipo.gov.cn/nlist.aspx?c=03&Page=1']
-    category_index = {'03': '1'}
-    category_desc = {'03': '通知公告'}
-    url_descs = ['通知公告']
+    start_urls = [
+        'http://daibanchu.bjipo.gov.cn/nlist.aspx?c=03&Page=1',
+        'http://daibanchu.bjipo.gov.cn/nlist.aspx?c=04&Page=1',
+        'http://daibanchu.bjipo.gov.cn/nlist.aspx?c=05&Page=1',
+        'http://daibanchu.bjipo.gov.cn/nlist.aspx?c=06&Page=1',
+        'http://daibanchu.bjipo.gov.cn/nlist.aspx?c=07&Page=1',
+        'http://daibanchu.bjipo.gov.cn/nlist.aspx?c=08&Page=1',
+    ]
+    category_index = {
+        '03': '1',
+                      '04': '2', '05': '3', '06': '4', '07': '5', '08': '6'}
+    category_desc = {
+        '03': '通知公告',
+                     '04': '法律法规', '05': '司法解释', '06': '相关政策', '07': '国际条约', '08': '规章办法'}
+    url_descs = [
+        '通知公告' ,
+        '法律法规','司法解释','相关政策','国际条约','规章办法']
     base_url = 'http://daibanchu.bjipo.gov.cn'
     md5 = hashlib.md5()
 
@@ -97,7 +110,7 @@ class BjipoSpider(scrapy.Spider):
                 self.download_file(attch_url, save_path)
             item['attchment_path'] = ','.join(attach_path_arra)
             item['attchment'] = ','.join(attach_arra)
-            #print(item)
+            # print(item)
             yield item
 
     def download_file(self, url, local_path):
