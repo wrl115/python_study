@@ -144,7 +144,8 @@ class HuxiuSpider(scrapy.Spider):
             # nextFormData = {'huxiu_hash_code': hash_code,
             #                 'page': str(int(current_page) + 1),
             #                 'last_dateline': last_dateline}
-            jsobj = json.loads(response.body)
+            print(type(response.body.decode('utf-8')), response.body.decode('utf-8'))
+            jsobj = json.loads(response.body.decode('utf-8'))
             if self.total_page == 0:
                 print('total_page', jsobj['total_page'])
                 self.total_page = int(jsobj['total_page'])
