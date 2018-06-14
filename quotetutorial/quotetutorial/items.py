@@ -31,3 +31,12 @@ class ScrapyItem(scrapy.Item):
     url = scrapy.Field()
     # 浏览次数
     view_count = scrapy.Field()
+    # 作者
+    author = scrapy.Field()
+    # 点赞
+    praise_num = scrapy.Field()
+    # 评论
+    pl_num = scrapy.Field()
+    # 收藏
+    share_num = scrapy.Field()
+
