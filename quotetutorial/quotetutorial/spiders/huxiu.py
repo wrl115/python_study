@@ -119,7 +119,7 @@ class HuxiuSpider(scrapy.Spider):
                 dd = dr.sub('', details)
                 tt = dd.replace(u'\n', '').replace(u'\xa0', '')
                 if tt.find('文章为作者独立观点') != -1:
-                    content = tt[0:tt.find('文章为作者独立观点')-1].strip()
+                    content = tt[0:tt.find('文章为作者独立观点') - 1].strip()
                 else:
                     content = tt
                 item['content'] = content
@@ -151,14 +151,15 @@ class HuxiuSpider(scrapy.Spider):
             if self.total_page == 0:
                 print('total_page', jsobj['total_page'])
                 self.total_page = int(jsobj['total_page'])
-            print('last_dateline', jsobj['last_dateline'])
+
             last_dateline = jsobj['last_dateline']
             soup = BeautifulSoup(jsobj['data'], 'lxml')
+            print(page, 'last_dateline', jsobj['last_dateline'], 'data-aid', len(soup.select('div[data-aid]')))
             for title in soup.select('div[data-aid]'):
                 href = "https://www.huxiu.com/article/" + title.get('data-aid') + ".html"
                 yield scrapy.Request(href, meta={'id_prefix': id_prefix,
                                                  'category': cate}, callback=self.parse_content)
-                time.sleep(random.randint(1, 6))
+                time.sleep(3)
 
             if page != 0 and int(page) < self.total_page:
                 nextFormData = {'huxiu_hash_code': hash_code,
