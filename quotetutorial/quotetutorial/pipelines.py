@@ -43,7 +43,7 @@ class DBPipeline(object):
                 pass
             else:
                 # 插入数据
-                if not item['author']:
+                if not item['praise_num']:
                     self.cursor.execute(
                         """insert into scrapy_item(id, title, source, published_date, content, attchment, attchment_path, category, url, view_count)
                         value (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
@@ -58,6 +58,7 @@ class DBPipeline(object):
                          item['url'],
                          item['view_count']))
                 else:
+                    print("****************insert huxiu data")
                     self.cursor.execute(
                         """insert into scrapy_item(id, title, source, published_date, content, attchment, attchment_path, category, url, view_count,author,praise_num,pl_num,share_num)
                         value (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
@@ -76,7 +77,6 @@ class DBPipeline(object):
                          item['pl_num'],
                          item['share_num']
                          ))
-
 
             # 提交sql语句
             self.connect.commit()

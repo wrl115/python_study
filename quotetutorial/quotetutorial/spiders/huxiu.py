@@ -140,11 +140,11 @@ class HuxiuSpider(scrapy.Spider):
             cate = response.meta['category']
             hash_code = response.meta['huxiu_hash_code']
             page = response.meta['page']
-            print('current page:', page, 'hash_code', hash_code)
+            # print('current page:', page, 'hash_code', hash_code)
             # nextFormData = {'huxiu_hash_code': hash_code,
             #                 'page': str(int(current_page) + 1),
             #                 'last_dateline': last_dateline}
-            print(type(response.body.decode('utf-8')), response.body.decode('utf-8'))
+            # print(type(response.body.decode('utf-8')), response.body.decode('utf-8'))
             jsobj = json.loads(response.body.decode('utf-8'))
             if self.total_page == 0:
                 print('total_page', jsobj['total_page'])
