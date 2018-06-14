@@ -132,6 +132,8 @@ class HuxiuSpider(scrapy.Spider):
 
             # print(item)
             yield item
+        else:
+            print(response.url, 'request error')
 
     def parse_next_list(self, response):
 
@@ -167,4 +169,4 @@ class HuxiuSpider(scrapy.Spider):
                                          meta={'id_prefix': id_prefix, 'category': cate,
                                                'huxiu_hash_code': hash_code, 'page': str(int(page) + 1)},
                                          callback=self.parse_next_list)
-                time.sleep(random.randint(1, 6))
+                time.sleep(6)
