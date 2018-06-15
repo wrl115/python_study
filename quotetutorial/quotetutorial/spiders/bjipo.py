@@ -8,7 +8,7 @@ from quotetutorial.items import ScrapyItem
 import requests
 import os
 
-
+# 国家知识产权局北京代办处
 class BjipoSpider(scrapy.Spider):
     index = 36
     name = 'bjipo'
@@ -31,7 +31,7 @@ class BjipoSpider(scrapy.Spider):
         '通知公告' ,
         '法律法规','司法解释','相关政策','国际条约','规章办法']
     base_url = 'http://daibanchu.bjipo.gov.cn'
-    md5 = hashlib.md5()
+
 
     def parse(self, response):
         print("**********", response.url)
@@ -75,10 +75,11 @@ class BjipoSpider(scrapy.Spider):
     def parse_content(self, response):
         # print("#########", response.css('div.detail_content.clearfix').extract())
         if response.status == 200:
-            self.md5.update(response.url.encode(encoding='utf-8'))
+            md5 = hashlib.md5()
+            md5.update(response.url.encode(encoding='utf-8'))
             item = ScrapyItem()
             id_prefix = response.meta['id_prefix']
-            item['id'] = id_prefix + "-" + self.md5.hexdigest()
+            item['id'] = id_prefix + "-" + md5.hexdigest()
             category = response.meta['category']
             item['category'] = category
             item['title'] = response.meta['title']
