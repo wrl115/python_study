@@ -14,7 +14,6 @@ class BjdjSpider(scrapy.Spider):
     start_urls = ['http://www.bjdj.gov.cn/news/tztg/index.html']
     category_index = {'tztg': '1', 'zcfbtz': '2', 'zcfbgg': '3'}
     category_desc = {'tztg': '通知公告', 'zcfbtz': '政策通知', 'zcfbgg': '政策公告'}
-    md5 = hashlib.md5()
     def parse(self, response):
         if response.status == 200:
             print("***********", response.url)
@@ -38,10 +37,11 @@ class BjdjSpider(scrapy.Spider):
                 yield scrapy.Request(baseurl + next_page, callback=self.parse)
 
     def parse_content(self, response):
-        self.md5.update(response.url.encode(encoding='utf-8'))
+        md5 = hashlib.md5()
+        md5.update(response.url.encode(encoding='utf-8'))
         item = ScrapyItem()
         id_prefix = response.meta['id_prefix']
-        item['id'] = id_prefix + "-" + self.md5.hexdigest()
+        item['id'] = id_prefix + "-" + md5.hexdigest()
         category = response.meta['category']
         item['category'] = category
         item['title'] = response.meta['title']
