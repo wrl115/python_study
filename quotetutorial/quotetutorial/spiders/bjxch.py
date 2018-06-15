@@ -19,7 +19,7 @@ class BjxchSpider(scrapy.Spider):
     category_index = {'tzgg': '1'}
     category_desc = {'tzgg': '通知公告'}
     url_descs = ['通知公告']
-    md5 = hashlib.md5()
+
 
     def parse(self, response):
         if response.status == 200:
@@ -49,10 +49,11 @@ class BjxchSpider(scrapy.Spider):
 
     def parse_content(self, response):
         if response.status == 200:
-            self.md5.update(response.url.encode(encoding='utf-8'))
+            md5 = hashlib.md5()
+            md5.update(response.url.encode(encoding='utf-8'))
             item = ScrapyItem()
             id_prefix = response.meta['id_prefix']
-            item['id'] = id_prefix + "-" + self.md5.hexdigest()
+            item['id'] = id_prefix + "-" + md5.hexdigest()
             category = response.meta['category']
             item['category'] = category
             item['title'] = response.meta['title']
