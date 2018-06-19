@@ -7,6 +7,8 @@ import hashlib
 from quotetutorial.items import ScrapyItem
 import requests
 import os
+import io
+import sys
 
 
 # 中关村企业信用促进会
@@ -32,6 +34,8 @@ class EcpaSpider(scrapy.Spider):
                      'beijingshizhengce': '北京市政策',
                      'geyuanqu': '各园区'}
     category_desc_arra = ['通知公告', '新闻中心', '中关村政策', '北京市政策', '各园区']
+
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='gb18030')
 
     def parse(self, response):
         print('#############', response.url)
@@ -83,6 +87,7 @@ class EcpaSpider(scrapy.Spider):
             if details:
                 dr = re.compile(r'<[^>]+>', re.S)
                 dd = dr.sub('', details)
+                dd.decode()
                 item['content'] = dd.replace(u'\u3000', '').replace(u'\t', '').replace(u'\r', '').replace(u'\xa0', '').replace(u'\n',
                                                                                                 '').strip()
             item['view_count'] = '0'
