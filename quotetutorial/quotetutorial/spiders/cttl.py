@@ -8,7 +8,7 @@ from quotetutorial.items import ScrapyItem
 import requests
 import os
 
-
+# 泰尔网
 class CttlSpider(scrapy.Spider):
     name = 'cttl'
     index = 6
@@ -18,7 +18,7 @@ class CttlSpider(scrapy.Spider):
     category_index = {'news': '1'}
     category_desc = {'news': '新闻动态'}
     url_descs = ['新闻动态']
-    md5 = hashlib.md5()
+
 
     def parse(self, response):
         # print('###!!!!', response.status)
@@ -70,10 +70,11 @@ class CttlSpider(scrapy.Spider):
     def parse_content(self, response):
         print(response.url)
         if response.status == 200:
-            self.md5.update(response.url.encode(encoding='utf-8'))
+            md5 = hashlib.md5()
+            md5.update(response.url.encode(encoding='utf-8'))
             item = ScrapyItem()
             id_prefix = response.meta['id_prefix']
-            item['id'] = id_prefix + "-" + self.md5.hexdigest()
+            item['id'] = id_prefix + "-" + md5.hexdigest()
             category = response.meta['category']
             item['category'] = category
             item['title'] = response.meta['title']
