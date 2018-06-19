@@ -15,12 +15,12 @@ class NdrcSpider(scrapy.Spider):
     name = 'ndrc'
     allowed_domains = ['www.ndrc.gov.cn']
     start_urls = [
-                  #'http://www.ndrc.gov.cn/zwfwzx/tztg/index.html',
-                  #'http://www.ndrc.gov.cn/zcfb/zcfbtz/index.html',
+                  'http://www.ndrc.gov.cn/zwfwzx/tztg/index.html',
+                  'http://www.ndrc.gov.cn/zcfb/zcfbtz/index.html',
                   'http://www.ndrc.gov.cn/zcfb/zcfbgg/index.html']
     category_index = {'tztg': '1', 'zcfbtz': '2', 'zcfbgg': '3'}
     category_desc = {'tztg': '通知公告', 'zcfbtz': '政策通知', 'zcfbgg': '政策公告'}
-    md5 = hashlib.md5()
+
 
     def parse(self, response):
         print("********", response.url, response.url.endswith('index.html'))
@@ -64,12 +64,14 @@ class NdrcSpider(scrapy.Spider):
                                                 'title': title, 'date': date}, callback=self.parse_content)
 
     def parse_content(self, response):
-        self.md5.update(response.url.encode(encoding='utf-8'))
+
         if response.status == 200:
+            md5 = hashlib.md5()
+            md5.update(response.url.encode(encoding='utf-8'))
             print("-------", response.url)
             item = ScrapyItem()
             id_prefix = response.meta['id_prefix']
-            item['id'] = id_prefix + "-" + self.md5.hexdigest()
+            item['id'] = id_prefix + "-" + md5.hexdigest()
             category = response.meta['category']
             item['category'] = category
             item['title'] = response.meta['title']
