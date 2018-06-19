@@ -7,6 +7,7 @@
 
 import pymysql
 
+
 class QuotetutorialPipeline(object):
 
     def process_item(self, item, spider):
@@ -40,10 +41,11 @@ class DBPipeline(object):
             repetition = self.cursor.fetchone()
             # 重复
             if repetition:
+                print('repe******************')
                 pass
             else:
                 # 插入数据
-                if not item['praise_num']:
+                if not hasattr(item, 'praise_num'):
                     self.cursor.execute(
                         """insert into scrapy_item(id, title, source, published_date, content, attchment, attchment_path, category, url, view_count)
                         value (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
@@ -83,5 +85,5 @@ class DBPipeline(object):
 
         except Exception as error:
             # 出现错误时打印错误日志
-           print("********", error)
+            print("********", error)
         return item
