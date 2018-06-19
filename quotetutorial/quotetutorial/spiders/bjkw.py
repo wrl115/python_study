@@ -11,6 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import requests
 from quotetutorial.items import ScrapyItem
 import os
+import hashlib
 
 
 # 北京市科学技术委员会
@@ -25,13 +26,13 @@ class BjkwSpider(scrapy.Spider):
     base_url = 'http://www.bjkw.gov.cn'
     download_url_prefix = 'http://jxw.beijing.gov.cn'
     start_urls = [
-    'http://www.bjkw.gov.cn/col/col19/index.html',
-                  #'http://www.bjkw.gov.cn/col/col363/index.html',
-                  #'http://www.bjkw.gov.cn/col/col362/index.html',
-                  #'http://www.bjkw.gov.cn/col/col982/index.html',
-                  #'http://www.bjkw.gov.cn/col/col365/index.html',
-                  #'http://www.bjkw.gov.cn/col/col366/index.html'
-                  ]
+        'http://www.bjkw.gov.cn/col/col19/index.html',
+        'http://www.bjkw.gov.cn/col/col363/index.html',
+        'http://www.bjkw.gov.cn/col/col362/index.html',
+        'http://www.bjkw.gov.cn/col/col982/index.html',
+        'http://www.bjkw.gov.cn/col/col365/index.html',
+        'http://www.bjkw.gov.cn/col/col366/index.html'
+    ]
     allnum = 0
     allindexnum = 0
 
@@ -40,7 +41,7 @@ class BjkwSpider(scrapy.Spider):
             detail_page_arra = []
             if response.url.endswith('index.html'):
                 index_page = re.match('.*/(.*?)/index.htm', response.url)
-                print(self.category_index.get(index_page.group(1), '0')+"::"+str(index_page))
+                print(self.category_index.get(index_page.group(1), '0') + "::" + str(index_page))
                 id_prefix = ''
                 category = ''
                 if index_page:
@@ -58,7 +59,7 @@ class BjkwSpider(scrapy.Spider):
                 all_page_num = math.ceil(int(totalRecord[1]) / int(perPage[1]))
                 # for pageNum in range(1, all_page_num + 1):
                 pageNum = 1
-                while pageNum < all_page_num+1:
+                while pageNum < all_page_num + 1:
                     # for pageNum in range(1, 5):
                     driverTmp = webdriver.PhantomJS()
                     url = response.url
@@ -109,12 +110,14 @@ class BjkwSpider(scrapy.Spider):
 
     def parse_detail_contents(self, response):
         if response.status == 200:
+            md5 = hashlib.md5()
+            md5.update(response.url.encode(encoding='utf-8'))
             item = ScrapyItem()
 
             id_prefix = response.meta['id_prefix']
             self.allnum = self.allnum + 1
             print(self.allnum, response.url)
-            item['id'] = id_prefix + "-" + str(self.allnum)
+            item['id'] = id_prefix + "-" + md5.hexdigest()
 
             category = response.meta['category']
             item['category'] = category
@@ -127,9 +130,9 @@ class BjkwSpider(scrapy.Spider):
 
             desc = re.findall('发布日期：(.*?)<td align="center">信息来源：.*?信息来源]>begin-->(.*?)<.*?</td>', response.text, re.S)
             if desc:
-                #print('发布日期：', re.sub('\r|\n|\t|</td>', '', desc[0][0]))
+                # print('发布日期：', re.sub('\r|\n|\t|</td>', '', desc[0][0]))
                 item['published_date'] = re.sub('\r|\n|\t|</td>', '', desc[0][0])
-                #print('来源：', desc[0][1])
+                # print('来源：', desc[0][1])
                 item['source'] = desc[0][1]
             else:
                 item['published_date'] = ''
@@ -137,11 +140,12 @@ class BjkwSpider(scrapy.Spider):
 
             dr = re.compile(r'<[^>]+>|end-->|begin-->', re.S)
             content = dr.sub('', response.css('.bt_content').extract_first())
-            #print("内容：", content)
-            item['content'] = content.strip().replace(u'\xa0', '').replace(u'\u3000', '').replace(u'\r\n', '').replace(u'\t','')
+            # print("内容：", content)
+            item['content'] = content.strip().replace(u'\xa0', '').replace(u'\u3000', '').replace(u'\r\n', '').replace(
+                u'\t', '')
 
-           # print("___________________________________________________________")
-            #print("附件：")
+            # print("___________________________________________________________")
+            # print("附件：")
             href_arra = response.css('.bt_content p a::attr("href")').extract()
             attach_arra = response.css('.bt_content p a::text').extract()
             attach_path_arra = []
@@ -150,7 +154,7 @@ class BjkwSpider(scrapy.Spider):
                 attach_path_arra.append(self.base_url + href_arra[i])
                 save_path = ''
                 print(i, href_arra, attach_arra)
-                if len(attach_arra)>0:
+                if len(attach_arra) > 0:
                     if attach_arra[i].rfind('.') == -1:
                         save_path = save_path + attach_arra[i] + href_arra[i][href_arra[i].rfind('.'):]
                     else:
@@ -161,13 +165,10 @@ class BjkwSpider(scrapy.Spider):
                     pass
                 i = i + 1
 
-
-
-            #print(attach_path_arra)
+            # print(attach_path_arra)
             item['attchment_path'] = ','.join(attach_path_arra)
-            #print(attach_arra)
+            # print(attach_arra)
             item['attchment'] = ','.join(attach_arra)
-
 
             view_url = response.css('#c tr span script::attr("src")').extract_first()
 
@@ -176,7 +177,7 @@ class BjkwSpider(scrapy.Spider):
                 if view_rq.status_code == 200:
                     view_desc = re.match('.*?\"(\d*?)\"', view_rq.text)
                     view_count = view_desc.group(1)
-                    #print('浏览次数:', view_count)
+                    # print('浏览次数:', view_count)
                     item['view_count'] = view_count
                 else:
                     print('查询浏览次数失败')
@@ -184,6 +185,7 @@ class BjkwSpider(scrapy.Spider):
             else:
                 print('无法获取浏览次数')
                 item['view_count'] = '0'
+            # print(item)
             yield item
 
         else:
@@ -202,5 +204,5 @@ class BjkwSpider(scrapy.Spider):
             with open(local_path, "wb") as code:
                 code.write(r.content)
                 # print("write file success!!")
-            # except Exception as exc:
-            # print("downloading %s failure!!!" % url)
+                # except Exception as exc:
+                # print("downloading %s failure!!!" % url)

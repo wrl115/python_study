@@ -24,7 +24,7 @@ class BjwzbSpider(scrapy.Spider):
                      'bjswhcycyzc': '北京市文化创意产业政策', 'jgzd': '国有文化企业改革和国资监管政策制度', 'zcjd': '政策解读'}
     url_descs = ['通知公告', '国家文化产业扶持政策', '北京市文化创意产业政策', '国有文化企业改革和国资监管政策制度', '政策解读']
     base_url = 'http://www.bjwzb.gov.cn'
-    md5 = hashlib.md5()
+
 
     def parse(self, response):
         print("**********", response.url)
@@ -66,10 +66,11 @@ class BjwzbSpider(scrapy.Spider):
     def parse_content(self, response):
         print("^^^^^^", response.url)
         if response.status == 200:
-            self.md5.update(response.url.encode(encoding='utf-8'))
+            md5 = hashlib.md5()
+            md5.update(response.url.encode(encoding='utf-8'))
             item = ScrapyItem()
             id_prefix = response.meta['id_prefix']
-            item['id'] = id_prefix + "-" + self.md5.hexdigest()
+            item['id'] = id_prefix + "-" + md5.hexdigest()
             category = response.meta['category']
             item['category'] = category
             item['title'] = response.meta['title']
