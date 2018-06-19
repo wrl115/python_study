@@ -32,7 +32,7 @@ class GovSpider(scrapy.Spider):
                      'zhengce_jiedu_meiti': '政策解读媒体'}
     category_desc_arra = ['国务院动态', '政策最新', '政策解读部门', '政策解读专家', '政策解读媒体']
 
-    md5 = hashlib.md5()
+
 
     def parse(self, response):
         print('+++++++++', response.url)
@@ -88,11 +88,12 @@ class GovSpider(scrapy.Spider):
     def parse_content(self, response):
         # print(response.url, '#', response.meta['id_prefix'], '##', response.meta['category'], '##', response.meta['title'], "##",
         #       response.meta['date'])
-        self.md5.update(response.url.encode(encoding='utf-8'))
         if response.status == 200:
+            md5 = hashlib.md5()
+            md5.update(response.url.encode(encoding='utf-8'))
             item = ScrapyItem()
             id_prefix = response.meta['id_prefix']
-            item['id'] = id_prefix + "-" + self.md5.hexdigest()
+            item['id'] = id_prefix + "-" + md5.hexdigest()
             category = response.meta['category']
             item['category'] = category
             item['title'] = response.meta['title']
