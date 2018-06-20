@@ -8,12 +8,11 @@ from quotetutorial.items import ScrapyItem
 import requests
 import os
 
-
+# 西城园管委会
 class ZgcDsSpider(scrapy.Spider):
     index = 31
     name = 'zgc-ds'
     allowed_domains = ['www.zgc-ds.gov.cn']
-    md5 = hashlib.md5()
     start_urls = ['http://www.zgc-ds.gov.cn/cenep/newds/channelpage/content_slip.jsp?categoryCode=140&currentPage=1',
                   'http://www.zgc-ds.gov.cn/cenep/newds/channelpage/content_slip.jsp?categoryCode=120&currentPage=1',
                   'http://www.zgc-ds.gov.cn/cenep/newds/channelpage/content_slip.jsp?categoryCode=200100&currentPage=1',
@@ -76,10 +75,11 @@ class ZgcDsSpider(scrapy.Spider):
     def parse_content(self, response):
         print("############", response.url)
         if response.status == 200:
-            self.md5.update(response.url.encode(encoding='utf-8'))
+            md5 = hashlib.md5()
+            md5.update(response.url.encode(encoding='utf-8'))
             item = ScrapyItem()
             id_prefix = response.meta['id_prefix']
-            item['id'] = id_prefix + "-" + self.md5.hexdigest()
+            item['id'] = id_prefix + "-" + md5.hexdigest()
             category = response.meta['category']
             item['category'] = category
             item['title'] = response.meta['title']
@@ -105,6 +105,8 @@ class ZgcDsSpider(scrapy.Spider):
                 attch_url = self.download_base_url + attch.css('::attr("href")').extract_first()
                 attach_path_arra.append(attch_url)
                 attch_name = attch.css('::text').extract_first()
+                if not attch_name:
+                    attch_name = attch_url[attch_url.rfind("/") + 1:]
                 attach_arra.append(attch_name)
                 if attch_name.rfind('.') == -1:
                     save_path = save_path + attch_name + attch_url[attch_url.rfind('.'):]

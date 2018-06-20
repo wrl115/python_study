@@ -7,27 +7,22 @@ import hashlib
 from quotetutorial.items import ScrapyItem
 import requests
 import os
-import io
-import sys
-import math
 
 
-class A8610hrSpider(scrapy.Spider):
-    index = 19
-    name = '8610hr'
+# 海淀科技园管委会
+class BjhdSpider(scrapy.Spider):
+    index = 17
+    name = 'bjhd'
     page_num = 0
-    allowed_domains = ['www.8610hr.cn']
-    start_urls = ['http://www.8610hr.cn/docs/more/tzgg_2016_index_tzgg/index_morenews1.html',
-                  'http://www.8610hr.cn/docs/more/zcfg_2016_yc_index01/index_morenews1.html',
-                  'http://www.8610hr.cn/docs/more/zcfg_2016_cx_index02/index_morenews1.html',
-                  'http://www.8610hr.cn/docs/more/zcfg_2016_cy_index03/index_morenews1.html',
-                  'http://www.8610hr.cn/docs/more/zcfg_2016_qt_index04/index_morenews1.html']
-    category_index = {'tzgg': '1', 'zcfg_yc_index01': '2', 'zcfg_cx_index02': '3', 'zcfg_cy_index03': '4',
-                      'zcfg_qt_index04': '5'}
-    category_desc = {'tzgg': '通知公告', 'zcfg_yc_index01': '政策法规综合', 'zcfg_cx_index02': '政策法规创新',
-                     'zcfg_cy_index03': '政策法规创业', 'zcfg_qt_index04': '政策法规其他'}
-    url_descs = ['通知公告', '政策法规综合', '政策法规创新', '政策法规创业', '政策法规其他']
-    base_url = 'http://www.8610hr.cn'
+    allowed_domains = ['hdy.bjhd.gov.cn']
+    start_urls = ['http://hdy.bjhd.gov.cn/yqdt2014/tzgg/index.htm']
+    category_index = {'tzgg': '1', 'gjjzc': '2', 'bjszc': '3', 'hdqzc': '4',
+                      'zcjd': '5', 'xyqyw': '6', 'qyzx': '7', 'mtbd': '8'}
+    category_desc = {'tzgg': '通知公告', 'gjjzc': '政策法规国家级', 'bjszc': '政策法规北京市',
+                     'hdqzc': '政策法规海淀区', 'zcjd': '政策法规解读', 'xyqyw': '园区要闻', 'qyzx': '前沿资讯', 'mtbd': '媒体报道'}
+    url_descs = ['通知公告', '政策法规国家级', '政策法规北京市', '政策法规海淀区', '政策法规解读', '园区要闻', '前沿资讯', '媒体报道']
+    base_url = 'http://hdy.bjhd.gov.cn'
+
 
     def parse(self, response):
         print("##########", response.url)
@@ -38,39 +33,26 @@ class A8610hrSpider(scrapy.Spider):
                 cate_index = self.start_urls.index(response.url)
                 id_prefix = str(self.index) + '-' + str(cate_index + 1)
                 cate = self.url_descs[cate_index]
-                total_count_desc = response.css('div.turnPage form::text').extract_first().strip()
+                total_count_desc = response.css('span#page script::text').extract_first()
                 if total_count_desc:
-                    total_count = re.match(r'^共(.*?)条， 列出第(.*?)到第(.*?)条', total_count_desc)
+                    total_count = re.findall('countPage = (.*?)\/\/', total_count_desc)
+                    print(total_count)
                     if total_count:
-                        pages = 2
-                        if math.fmod(int(total_count.group(1)), int(total_count.group(3))) == 0:
-                            pages = int(int(total_count.group(1)) / int(total_count.group(3)))
-                        else:
-                            pages = int(int(total_count.group(1)) / int(total_count.group(3))) + 1
-
-                        # pages = int(total_count)/
-                        for pagenum in range(2, pages):
-                            url = response.url.replace('index_morenews1.html', 'index_morenews%s.html' % pagenum)
+                        for pagenum in range(1, int(total_count[0])):
+                            url = response.url.replace('index.htm', 'index_%s.htm' % pagenum)
                             yield scrapy.Request(url, meta={'id_prefix': id_prefix, 'category': cate},
                                                  callback=self.parse)
-                            # yield scrapy.FormRequest(
-                            #     url=response.url,
-                            #     formdata={"page_num": str(pagenum)},
-                            #     callback=self.parse
-                            # )
-                            # time.sleep(random.randint(1, 6))
             else:
                 id_prefix = response.meta['id_prefix']
                 cate = response.meta['category']
-
-            links = response.css('div.list1 ul li')
+            links = response.css('dl.Newslist dd')
             if links:
                 for link in links:
-                    url = link.css('a::attr("href")').extract_first()
+                    url = link.css('a::attr("href")').extract_first().strip()
                     title = link.css('a::attr("title")').extract_first()
-                    date = link.css('span::text').extract_first()
+                    date = link.css('span::text').extract_first().strip()[1:-1]
                     if not url.startswith('http'):
-                        url = self.base_url + url
+                        url = response.url[0:response.url.rfind('/')] + url[1:]
                     print(url, title, date)
                     yield scrapy.Request(url, meta={'id_prefix': id_prefix,
                                                     'category': cate,
@@ -92,14 +74,15 @@ class A8610hrSpider(scrapy.Spider):
             item['title'] = response.meta['title']
             item['published_date'] = response.meta['date']
             item['source'] = ''
-            source_desc = response.css('div.info-from::text').extract_first()
+
+            source_desc = response.css('div.main_ct p::text').extract_first()
             if source_desc:
-                source_content = re.findall('信息来源：(.*)', source_desc)
+                source_content = re.findall('信息来源：(.*)$', source_desc)
                 if source_content:
                     item['source'] = source_content[0]
 
             item['content'] = ''
-            details = response.css('div.content_p').extract_first()
+            details = response.css('div.zhengwen').extract_first()
             if details:
                 dr = re.compile(r'<[^>]+>', re.S)
                 dd = dr.sub('', details)
@@ -116,7 +99,8 @@ class A8610hrSpider(scrapy.Spider):
                 'a[href*=".pdf"]') + response.css('a[href*=".zip"]') + response.css('a[href*=".rar"]')
             for attch in atta_arra:
                 save_path = ''
-                attch_url = self.base_url + attch.css('::attr("href")').extract_first()
+                attch_url = response.url[0:response.url.rfind('/')] + attch.css(
+                    '::attr("href")').extract_first().strip()[1:]
                 attach_path_arra.append(attch_url)
                 attch_name = attch.css('::text').extract_first()
                 if not attch_name:

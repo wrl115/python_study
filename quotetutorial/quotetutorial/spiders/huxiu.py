@@ -22,7 +22,6 @@ class HuxiuSpider(scrapy.Spider):
     category_desc = {'article': '新闻咨询'}
     url_descs = ['新闻咨询']
     total_page = 0
-    md5 = hashlib.md5()
 
     def parse(self, response):
         print("**********", response.url, response.url in self.start_urls)
@@ -68,10 +67,13 @@ class HuxiuSpider(scrapy.Spider):
     def parse_content(self, response):
         # print("############", response.url)
         if response.status == 200:
-            self.md5.update(response.url.encode(encoding='utf-8'))
+            md5 = hashlib.md5()
+            md5.update(response.url.encode(encoding='utf-8'))
             item = ScrapyItem()
             id_prefix = response.meta['id_prefix']
-            item['id'] = id_prefix + "-" + self.md5.hexdigest()
+
+            item['id'] = id_prefix + "-" + md5.hexdigest()
+            print(item['id'], ';;', md5.hexdigest(), '::', response.url)
             category = response.meta['category']
             item['category'] = category
             item['source'] = ''
@@ -100,7 +102,7 @@ class HuxiuSpider(scrapy.Spider):
             if share_desc:
                 share_m = re.match('^收藏(\d)', share_desc)
                 if share_m:
-                    print("share:", share_m.group(1))
+                    # print("share:", share_m.group(1))
                     item['share_num'] = share_m.group(1)
             # 评论
             pl_desc = response.css('span.article-pl.pull-left::text').extract_first()
@@ -155,11 +157,12 @@ class HuxiuSpider(scrapy.Spider):
             last_dateline = jsobj['last_dateline']
             soup = BeautifulSoup(jsobj['data'], 'lxml')
             print(page, 'last_dateline', jsobj['last_dateline'], 'data-aid', len(soup.select('div[data-aid]')))
-            for title in soup.select('div[data-aid]'):
-                href = "https://www.huxiu.com/article/" + title.get('data-aid') + ".html"
-                yield scrapy.Request(href, meta={'id_prefix': id_prefix,
-                                                 'category': cate}, callback=self.parse_content)
-                time.sleep(3)
+            if int(page) > 50:
+                for title in soup.select('div[data-aid]'):
+                    href = "https://www.huxiu.com/article/" + title.get('data-aid') + ".html"
+                    yield scrapy.Request(href, meta={'id_prefix': id_prefix,
+                                                     'category': cate}, callback=self.parse_content)
+                    time.sleep(random.randint(1, 6))
 
             if page != 0 and int(page) < self.total_page:
                 nextFormData = {'huxiu_hash_code': hash_code,

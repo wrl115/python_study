@@ -89,6 +89,8 @@ class BjsatSpider(scrapy.Spider):
                 attch_url = response.url[0:response.url.rfind('/') + 1] + attch.css('::attr("href")').extract_first()
                 attach_path_arra.append(attch_url)
                 attch_name = attch.css('::text').extract_first()
+                if not attch_name:
+                    attch_name = attch_url[attch_url.rfind("/") + 1:]
                 attach_arra.append(attch_name)
                 if attch_name.rfind('.') == -1:
                     save_path = save_path + attch_name + attch_url[attch_url.rfind('.'):]

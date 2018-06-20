@@ -94,7 +94,9 @@ class BjwzbSpider(scrapy.Spider):
                 save_path = ''
                 attch_url = self.base_url + attch.css('::attr("href")').extract_first()
                 attach_path_arra.append(attch_url)
-                attch_name = attch_url[attch_url.rfind("/") + 1:]
+                attch_name = attch.css('::text').extract_first()
+                if not attch_name:
+                    attch_name = attch_url[attch_url.rfind("/") + 1:]
                 attach_arra.append(attch_name)
                 if attch_name.rfind('.') == -1:
                     save_path = save_path + attch_name + attch_url[attch_url.rfind('.'):]
